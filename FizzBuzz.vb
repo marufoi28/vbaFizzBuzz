@@ -1,112 +1,77 @@
 Public wsExercise As Worksheet
 Public wsProblem As Worksheet
 Public wsTest As Worksheet
-Public FizzCount As Integer
-Public BuzzCount As Integer
-Public FizzBuzzCount As Integer
 
-Private Sub InitializeWorksheet()
+Public Sub button1_Click()
+    outputFizzBuzz 1
+End Sub
+
+Public Sub button2_Click()
+    outputFizzBuzz 2
+End Sub
+
+Public Sub outputFizzBuzz(buttonType As Integer)
+    Dim fizzCount As Integer, buzzCount As Integer, fizzBuzzCount As Integer
+    fizzCount = 0
+    buzzCount = 0
+    fizzBuzzCount = 0
     Set wsExercise = ThisWorkbook.Sheets("演習")
     Set wsProblem = ThisWorkbook.Sheets("問題")
-    Set wsTest = ThisWorkbook.Sheets("test")
-    FizzCount = 0
-    BuzzCount = 0
-    FizzBuzzCount = 0
-End Sub
 
-Public Sub outputFizzBuzz()
-  Call InitializeWorksheet
-  Dim row As Integer: row = 2
-  Dim NumberListLastRow As Long: NumberListLastRow = wsExercise.Cells(wsExercise.Rows.Count, 1).End(xlUp).row
-
-  Call clearFizzBuzz
-
-  Do While row <= NumberListLastRow
-
-      Dim inputNum As String: inputNum = wsExercise.Cells(row, 1)
-
-      If Not RunFizzBuzz(inputNum) Then
-        Exit Do
-      End If
-
-      Dim num As Integer: num = CInt(inputNum)
-
-      Call writeFizzBuzz(num, row)
-
-      row = row + 1
-  Loop
-
-  wsExercise.Cells(2, 4) = FizzCount
-  wsExercise.Cells(2, 5) = BuzzCount
-  wsExercise.Cells(2, 6) = FizzBuzzCount
-
-End Sub
-
-Private Function RunFizzBuzz(ByVal inputNum As String) As Boolean
-    RunFizzBuzz = True
-    If inputNum = "" Or inputNum = "end" Then
-        RunFizzBuzz = False
+    Dim row As Long
+    If buttonType = 1 Then
+        row = 2
+    ElseIf buttonType = 2 Then
+        row = wsProblem.Cells(9, 2)
     End If
+    Dim NumberListLastRow As Long : NumberListLastRow = wsExercise.Cells(wsExercise.Rows.Count, 1).End(xlUp).row
 
+    clearColumn 2
 
-End Function
+    Do While row <= NumberListLastRow
 
-Public Sub writeFizzBuzz(ByVal num As Long, ByVal row As Integer)
-      If num Mod 15 = 0 Then
-          wsExercise.Cells(row, 2) = "FizzBuzz"
-          FizzBuzzCount = FizzBuzzCount + 1
-      ElseIf num Mod 3 = 0 Then
+        Dim inputNum As String : inputNum = wsExercise.Cells(row, 1)
+
+        If inputNum = "" Or inputNum = "end" Then Exit Do
+
+        If IsNumeric(inputNum) Then
+            Dim num As Integer : num = CLng(inputNum)
+            writeFizzBuzz num, row, fizzCount, buzzCount, fizzBuzzCount
+        End If
+        row = row + 1
+    Loop
+
+    wsExercise.Cells(2, 4) = fizzCount
+    wsExercise.Cells(2, 5) = buzzCount
+    wsExercise.Cells(2, 6) = fizzBuzzCount
+
+End Sub
+
+Public Sub writeFizzBuzz(ByVal num As Long, ByVal row As Long,
+                         ByRef fizzCount As Integer, ByRef buzzCount As Integer, ByRef fizzBuzzCount As Integer)
+    If num Mod 15 = 0 Then
+        wsExercise.Cells(row, 2) = "FizzBuzz"
+        fizzBuzzCount = fizzBuzzCount + 1
+    ElseIf num Mod 3 = 0 Then
         wsExercise.Cells(row, 2) = "Fizz"
-        FizzCount = FizzCount + 1
-     ElseIf num Mod 5 = 0 Then
-       wsExercise.Cells(row, 2) = "Buzz"
-       BuzzCount = BuzzCount + 1
-     Else
-         wsExercise.Cells(row, 2) = num
-      End If
+        fizzCount = fizzCount + 1
+    ElseIf num Mod 5 = 0 Then
+        wsExercise.Cells(row, 2) = "Buzz"
+        buzzCount = buzzCount + 1
+    Else
+        wsExercise.Cells(row, 2) = num
+    End If
 End Sub
 
-Public Sub test02()
-  Call InitializeWorksheet
-  Dim row As Long: row = 2
-
-  'TODO: NULL判定
-  row = wsProblem.Cells(9, 2).Value
-
-  Dim NumberListLastRow As Long: NumberListLastRow = wsExercise.Cells(wsExercise.Rows.Count, 1).End(xlUp).row
-
-  Call clearFizzBuzz
-
+Private Sub isPrimeCheck()
+    Dim row As Long : row = 2
+    Dim NumberListLastRow As Long : NumberListLastRow = wsExercise.Cells(wsExercise.Rows.Count, 1).End(xlUp).row
     Do While row <= NumberListLastRow
-
-      Dim inputNum As String: inputNum = wsExercise.Cells(row, 1)
-
-      If Not RunFizzBuzz(inputNum) Then
-        Exit Do
-      Else
-        Dim num As Integer: num = CInt(inputNum)
-      End If
-
-      writeFizzBuzz (num)
-      row = row + 1
-  Loop
-
-  wsExercise.Cells(2, 4) = FizzCount
-  wsExercise.Cells(2, 5) = BuzzCount
-  wsExercise.Cells(2, 6) = FizzBuzzCount
-
-End Sub
-
-Public Sub isPrimeCheck()
-    Call InitializeWorksheet
-    Dim row As Long: row = 2
-    Dim NumberListLastRow As Long: NumberListLastRow = wsExercise.Cells(wsExercise.Rows.Count, 1).End(xlUp).row
-    Do While row <= NumberListLastRow
-        Dim inputNum As String: inputNum = wsExercise.Cells(row, 1)
+        Dim inputNum As String : inputNum = wsExercise.Cells(row, 1)
         If inputNum = "" Or inputNum = "end" Then
-          Exit Do
+            Exit Do
         Else
-          num = wsExercise.Cells(row, 1)
+            num = wsExercise.Cells(row, 1)
         End If
 
         If isPrime(wsExercise.Cells(row, 1)) Then
@@ -122,16 +87,11 @@ Function isPrime(n As Long) As Boolean
     Dim i As Long
 
     If n <= 1 Then
-      isPrime = False
-      Exit Function
-    End If
-
-    If n Mod 2 = 0 Or n Mod 3 = 0 Then
         isPrime = False
         Exit Function
     End If
 
-    For i = 5 To Sqr(n) Step 2
+    For i = 2 To Sqr(n)
         If n Mod i = 0 Then
             isPrime = False
             Exit Function
@@ -143,32 +103,21 @@ End Function
 
 'クリアボタン
 Public Sub clear()
-    Dim row As Integer: row = 2
-    Call InitializeWorksheet
-    Call clearFizzBuzz
-    Call clearIsPrimeNumber
+    clearColumn 2
+    clearColumn 3
 End Sub
 
-'Fizz/Buzzのクリア
-Private Sub clearFizzBuzz()
-    Call InitializeWorksheet
-    Dim fizzBuzzLastRow As Long: fizzBuzzLastRow = wsExercise.Cells(wsExercise.Rows.Count, 2).End(xlUp).row
-    Dim row As Long: row = 2
+'行のクリア
+Private Sub clearColumn(columNumber As Long)
+    Set wsExercise = ThisWorkbook.Sheets("演習")
+    Dim lastRow As Long : lastRow = wsExercise.Cells(wsExercise.Rows.Count, columNumber).End(xlUp).row
+    Dim row As Long : row = 2
 
-    Do While row <= fizzBuzzLastRow
-        wsExercise.Cells(row, 2).clear
-    row = row + 1
+    Do While row <= lastRow
+        wsExercise.Cells(row, columNumber).clear
+        row = row + 1
     Loop
 End Sub
 
-'PrimeNumberのクリア
-Private Sub clearIsPrimeNumber()
-    Call InitializeWorksheet
-    Dim isPrimeNumberLastRow As Long: isPrimeNumberLastRow = wsExercise.Cells(wsExercise.Rows.Count, 3).End(xlUp).row
-    Dim row As Long: row = 2
 
-    Do While row <= isPrimeNumberLastRow
-        wsExercise.Cells(row, 3).clear
-    row = row + 1
-    Loop
-End Sub
+
